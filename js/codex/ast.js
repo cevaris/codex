@@ -4,6 +4,7 @@ var fs = require('fs');
 var util = require('util');
 
 var filesUtil = require('./files.js');
+var logger = require('./logger.js').logger;
 
 /**
  *
@@ -32,8 +33,9 @@ exports.parseAST = function (jsFile) {
 };
 
 exports.extractFunctions = function (ast) {
-    console.log("searching for functions");
-    var functions = []
+    var functions = [];
+
+    logger.info("extracting functions");
 
     estraverse.traverse(ast, {
         enter: function (node, parent) {
@@ -44,10 +46,9 @@ exports.extractFunctions = function (ast) {
                 var endLine = sourceLocation.end.line;
 
                 var pad = 2;
-                var func = filesUtil.fileLinesAtRange(
-                    sourceFile, startLine - pad, endLine + pad
-                );
-                functions.push(func);
+                functions.push({
+                    filePath: sourceFile, start: startLine, end: endLine
+                });
             }
         },
         fallback: 'iteration'

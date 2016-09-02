@@ -4,24 +4,43 @@
 var program = require('commander');
 var fs = require('fs');
 
-var filesUtil = require('./codex/files.js');
 var astUtil = require('./codex/ast.js');
+var logger = require('./codex/logger.js').logger;
+
+function doit(jsPath) {
+    var ast = undefined;
+    try {
+        ast = astUtil.parseAST(jsPath);
+    } catch (err) {
+        logger.error('could not parse: ' + jsPath + ' ' + err);
+    }
+
+    var jsonData = {};
+    try {
+        if (ast) {
+            jsonData = astUtil.extractFunctions(ast);
+        }
+    } catch (err) {
+        logger.error('walking ast: ' + jsPath + ' ' + err);
+    }
+
+    if (jsonData) {
+        console.log(jsonData)
+    } else {
+        logger.info('no functions found');
+    }
+}
 
 function handlePath(jsPath) {
 
     if (!fs.existsSync(jsPath)) {
-        console.log(jsPath, "does not exist");
+        logger.error(jsPath + " does not exist");
         process.exit();
     }
 
     var stats = fs.lstatSync(jsPath);
     if (stats.isFile()) {
-        try {
-            var ast = astUtil.parseAST(jsPath);
-            astUtil.extractFunctions(ast).map(console.log);
-        } catch (err) {
-            console.log('could not parse:', jsPath, err);
-        }
+        doit(jsPath)
     }
 }
 
