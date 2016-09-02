@@ -1,0 +1,23 @@
+{
+  "name": "codexjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adam Cardenas",
+  "license": "ISC",
+  "bin": {
+    "codexjs": "./index.js"
+  },
+  "dependencies": {
+    "acorn-jsx": "^3.0.1",
+    "commander": "^2.9.0",
+    "glob": "^7.0.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cevaris/codex.git"
+  }
+}
