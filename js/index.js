@@ -3,51 +3,93 @@
 
 var program = require('commander');
 var fs = require('fs');
+var util = require('util');
 
-var astUtil = require('./codex/ast.js');
-var logger = require('./codex/logger.js').logger;
+var ast = require('./codex/ast.js');
+var logger = require('./codex/logger.js');
 
-function doit(jsPath) {
-    var ast = undefined;
+function parseFuncs(astValue) {
+    logger.debug('parseFuncs');
+
     try {
-        ast = astUtil.parseAST(jsPath);
-    } catch (err) {
-        logger.error('could not parse: ' + jsPath + ' ' + err);
-    }
-
-    var jsonData = {};
-    try {
-        if (ast) {
-            jsonData = astUtil.extractFunctions(ast);
+        if (astValue) {
+            return ast.extractFunctions(astValue);
+        } else {
+            logger.info('empty ast value');
         }
     } catch (err) {
-        logger.error('walking ast: ' + jsPath + ' ' + err);
+        logger.error('walking ast: ' + err);
     }
 
-    if (jsonData) {
-        console.log(jsonData)
-    } else {
-        logger.info('no functions found');
-    }
+    return [];
 }
 
-function handlePath(jsPath) {
+function parseMembers(astValue) {
+    logger.debug('parseMembers');
+
+    try {
+        if (astValue) {
+            return ast.extractMembers(astValue);
+        } else {
+            logger.info('empty ast value');
+        }
+    } catch (err) {
+        logger.error('walking ast: ' + err);
+    }
+
+    return null;
+}
+
+function parsePath(jsPath, options) {
+    logger.debug('parsePath ' + jsPath + ' ' + options);
 
     if (!fs.existsSync(jsPath)) {
-        logger.error(jsPath + " does not exist");
-        process.exit();
+        logger.error('file ' + jsPath + " does not exist");
+        return;
     }
 
     var stats = fs.lstatSync(jsPath);
-    if (stats.isFile()) {
-        doit(jsPath)
+    if (!stats.isFile()) {
+        logger.error(jsPath + " is not a file");
+        return;
     }
+
+    var astValue = null;
+    try {
+        astValue = ast.parseAST(jsPath);
+    } catch (err) {
+        logger.error('could not parse: ' + jsPath + ' ' + err);
+        return;
+    }
+
+    var funcs = [];
+    var members = [];
+
+    if (options.funcs) {
+        funcs = parseFuncs(astValue);
+    } else if (options.members) {
+        members = parseMembers(astValue);
+    } else {
+        funcs = parseFuncs(astValue);
+        members = parseMembers(astValue);
+    }
+
+    var result = {
+        filePath: jsPath,
+        members: members,
+        funcs: funcs
+    };
+
+    console.log(util.inspect(result, false, null));
 }
 
 
 program
-    .command('parse <path>')
-    .action(handlePath);
+    .command('parse  <path>')
+    .option('-f, --funcs', 'parse functions')
+    .option('-l, --members', 'parse members')
+    .option('-a, --all', 'parse all elements')
+    .action(parsePath);
 
 program
     .parse(process.argv);

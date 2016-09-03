@@ -9,4 +9,4 @@ log4js.configure({
 
 var logger = log4js.getLogger();
 
-exports.logger = logger;
+module.exports = logger;
