@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'codexrb'
+require 'thor'
+
+
+class CodexCLI < Thor
+  desc("parse [path] <options>", "parse ruby ast")
+
+  option :funcs, :type => :boolean
+  option :members, :type => :boolean
+
+  def parse(path)
+    puts "options #{options}"
+    puts "parsing #{path}"
+
+    ruby_str = Codexrb::Ast.read_file(path)
+    ast = Codexrb::Ast.parse_ruby(ruby_str)
+    puts ast
+  end
+end
+
+
+CodexCLI.start(ARGV)
