@@ -80,7 +80,9 @@ function parsePath(jsPath, options) {
         funcs: funcs
     };
 
-    console.log(util.inspect(result, false, null));
+
+    //console.log(util.inspect(result, false, null));
+    console.log(JSON.stringify(result));
 }
 
 

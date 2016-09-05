@@ -1,39 +1,36 @@
 package com.cevaris.codex;
 
-import jdk.nashorn.internal.ir.LexicalContext;
-import org.mozilla.javascript.CompilerEnvirons;
-import org.mozilla.javascript.Parser;
-import org.mozilla.javascript.ast.AstRoot;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.util.HashMap;
+import java.util.concurrent.TimeoutException;
 
 public class CodexRunner {
-//
-//    class Printer extends NodeVisitor {
-//
-//        public boolean visit(AstNode node) {
-//            String indent = "%1$Xs".replace("X", String.valueOf(node.depth() + 1));
-//            System.out.format(indent, "").println(node.getClass());
-//            return true;
-//        }
-//    }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
 
-        String file = "/git/redux/examples/async/actions/index.js";
-        Reader reader = new FileReader(file);
-        try {
-            LexicalContext lc = new LexicalContext();
-            CompilerEnvirons env = new CompilerEnvirons();
-            env.setRecordingLocalJsDocComments(true);
-            env.setAllowSharpComments(true);
-            env.setRecordingComments(true);
-            AstRoot node = new Parser(env).parse(reader, file, 1);
-            System.out.println(node.toSource());
-        } finally {
-            reader.close();
+        ProcessResult result = new ProcessExecutor()
+                .command("/git/codex/bin/codexrb", "parse", "/git/resque-example/lib/watermark.rb")
+//                .command("/git/codex/bin/codexjs", "parse", "/git/redux/examples/todomvc/actions/index.js")
+                .readOutput(true)
+                .execute();
+
+        int resultCode = result.getExitValue();
+        String resultJson = result.outputUTF8();
+
+        if (resultCode == 0) {
+            ObjectMapper mapper = new ObjectMapper();
+            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
+            };
+            HashMap<String, Object> resultParsedJson = mapper.readValue(resultJson, typeRef);
+            System.out.println(resultParsedJson);
+        } else {
+            System.out.println(resultJson);
         }
+
     }
 }

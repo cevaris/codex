@@ -8,30 +8,27 @@ module Codexrb
 
     def initialize
       @funcs = []
+      @funcs_word_bag = []
       @logger = Codexrb.logger
     end
 
-    def on_root(node)
-      @logger.info("root")
-      node.updated(nil, process_all(node.children))
-    end
-
     def on_def(node)
-      @logger.info("def #{node}")
+      name, args_node, body_node = *node
+      @logger.info("def #{name}")
 
       func_node = {
-          :name => node.children.first,
+          :name => name,
           :location => {
               :start => node.loc.expression.line,
               :end => node.loc.expression.last_line
           }
       }
       @funcs << func_node
-    end
 
-    def on_send(node)
-      @logger.info("send #{node}")
-
+      node.updated(nil, [
+          name,
+          process(args_node), process(body_node)
+      ])
     end
 
     def handler_missing(node)

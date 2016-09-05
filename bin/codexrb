@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+source /opt/twitter/rvm/gems/ruby-2.0.0-p645@codexrb/environment && codexrb $@
