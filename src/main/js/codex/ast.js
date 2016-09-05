@@ -10,7 +10,7 @@ function transformAstSourceLocation(loc) {
     var startLine = loc.start.line;
     var endLine = loc.end.line;
     return {
-        filePath: sourceFile,
+        file_path: sourceFile,
         start: startLine,
         end: endLine
     };

@@ -2,21 +2,34 @@
 
 require 'codexrb'
 require 'thor'
-
+require 'json'
 
 class CodexCLI < Thor
   desc("parse [path] <options>", "parse ruby ast")
 
   option :funcs, :type => :boolean
-  option :members, :type => :boolean
+  option :funcs, :type => :boolean
 
   def parse(path)
     puts "options #{options}"
     puts "parsing #{path}"
 
     ruby_str = Codexrb::Ast.read_file(path)
-    ast = Codexrb::Ast.parse_ruby(ruby_str)
-    puts ast
+    ast_value = Codexrb::Ast.parse_ruby(ruby_str)
+
+    puts ast_value
+
+    result = {}
+    if options.funcs
+      result[:funcs] = Codexrb::Ast.extract_members(ast_value)
+    elsif options.funcs
+      result[:funcs] = Codexrb::Ast.extract_funcs(ast_value)
+    else
+      result[:members] = Codexrb::Ast.extract_members(ast_value)
+      result[:funcs] = Codexrb::Ast.extract_funcs(ast_value)
+    end
+
+    puts result.to_json
   end
 end
 
