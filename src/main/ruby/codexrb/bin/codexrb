@@ -20,6 +20,8 @@ class CodexCLI < Thor
     puts ast_value
 
     result = {}
+    result[:path] = path
+
     if options.funcs
       result[:funcs] = Codexrb::Ast.extract_members(ast_value)
     elsif options.funcs

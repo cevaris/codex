@@ -22,7 +22,6 @@ module Codexrb
       func_node = {
           :name => node.children.first,
           :location => {
-              :file_path => nil,
               :start => node.loc.expression.line,
               :end => node.loc.expression.last_line
           }
@@ -32,6 +31,7 @@ module Codexrb
 
     def on_send(node)
       @logger.info("send #{node}")
+
     end
 
     def handler_missing(node)
